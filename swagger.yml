@@ -96,6 +96,28 @@ paths:
           description: Информер успешно удален
         '404':
           description: Информер не найден
+    put:
+      summary: Обновление информера
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Уникальный идентификатор информера
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InformerCreate'
+      responses:
+        '200':
+          description: Информер успешно обновлен
+        '400':
+          description: Неверный запрос, ошибка валидации
+        '404':
+          description: Информер не найден
     patch:
       summary: Частичное обновление информера (overkill?)
       parameters:
