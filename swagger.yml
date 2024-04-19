@@ -1,0 +1,319 @@
+openapi: 3.0.0
+info:
+  title: Informer API
+  description: API для управления информерами в админке
+  version: "1.0"
+servers:
+  - url: /
+paths:
+  /api/v1/location:
+    get:
+      summary: Получение информации о всех возможных путях расположения информера из таблицы location
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+  /api/v1/informer:
+    get:
+      summary: Получение списка всех информеров с пагинацией
+      parameters:
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+          description: Смещение списка (начиная с какого элемента)
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+          description: Максимальное количество элементов в списке
+      responses:
+        '200':
+          description: Список всех информеров
+          content:
+            application/json:
+              $ref: '#/components/schemas/Informer'
+
+    post:
+      summary: Создание информера
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InformerCreate'
+      responses:
+        '201':
+          description: Информер успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Created'
+        '400':
+          description: Неверный запрос, ошибка валидации
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Описание ошибки валидации
+              example:
+                error: "Ошибка валидации: поле 'name' не может быть пустым"
+  /api/v1/informer/{id}:
+    get:
+      summary: Получение информера для редактирования
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Уникальный идентификатор информера
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InformerCreate'
+    delete:
+      summary: Удаление информера
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Уникальный идентификатор информера
+      responses:
+        '204':
+          description: Информер успешно удален
+        '404':
+          description: Информер не найден
+    patch:
+      summary: Частичное обновление информера (overkill?)
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: Уникальный идентификатор информера
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InformerPatch'
+      responses:
+        '200':
+          description: Информер успешно обновлен
+        '400':
+          description: Неверный запрос, ошибка валидации
+        '404':
+          description: Информер не найден
+components:
+  schemas:
+    Informer:
+      type: array
+      items:
+        type: object
+        required:
+          - class
+          - id
+          - name
+          - updated_at
+          - created_by
+          - is_active
+          - display_order
+        properties:
+          class:
+            type: integer
+            format: int64
+            description: Тип информера
+          id:
+            type: integer
+            format: int64
+            description: Уникальный идентификатор информера
+          name:
+            type: string
+            description: Название информера
+          updated_at:
+            type: string
+            format: date-time
+            description: Дата обновления информера
+          created_by:
+            type: integer
+            format: int64
+            description: Идентификатор пользователя, создавшего информер
+          is_active:
+            type: boolean
+            description: Флаг активности информера
+          display_order:
+            type: integer
+            format: int64
+            description: Порядок отображения информера
+      example:
+        - class: 1
+          id: 1
+          name: "Новый Информер"
+          updated_at: "2024-04-17T12:27:52.000Z"
+          created_by: 124
+          is_active: true
+          display_order: 1
+    InformerCreate:
+
+      type: object
+      required:
+        - name
+        - location_id
+        - is_active
+        - view
+        - type
+        - display_order
+        - content
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          description: Название информера
+        location_id:
+          type: integer
+          format: int64
+          description: Уникальный идентификатор местоположения информера
+        is_active:
+          type: boolean
+          description: Флаг активности информера
+        view:
+          type: string
+          enum:
+            - web
+            - mobile
+          description: Вид информера
+        class:
+          type: integer
+          format: int64
+          description: Вид информера, например, интрукция или банер
+        display_order:
+          type: integer
+          format: int64
+          description: Порядок отображения информера
+        content:
+          type: array
+          items:
+            type: object
+            required:
+              - type
+              - value
+            properties:
+              type:
+                type: integer
+                format: int64
+                description: Тип контента, например, заголовок или буллетпойнт
+              value:
+                type: string
+                description: Значение, которое содержит выбранный тип контента
+      example:
+        name: "Новый Информер"
+        location_id: 1
+        is_active: true
+        view: "web"
+        class: 1
+        display_order: 1
+        content:
+          - type: 1
+            value: "Pater noster, qui es in caelis"
+        created_by: 124
+    InformerPatch:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          description: Название информера
+        location_id:
+          type: integer
+          format: int64
+          description: Уникальный идентификатор местоположения информера
+        is_active:
+          type: boolean
+          description: Флаг активности информера
+        view:
+          type: string
+          enum:
+            - web
+            - mobile
+          description: Вид информера
+        type:
+          type: integer
+          format: int64
+          description: Тип информера
+        display_order:
+          type: integer
+          format: int64
+          description: Порядок отображения информера
+        content:
+          type: object
+          required:
+            - type
+            - value
+          properties:
+            type:
+              type: integer
+              format: int64
+              description: Тип содержимого информера
+            value:
+              type: string
+              description: Значение содержимого информера
+      example:
+        content:
+          type: 2
+          value: "sanctificetur nomen Tuum"
+    Created:
+      description: Информер успешно создан
+      properties:
+        message:
+          type: string
+          description: Сообщение об успешном создании информера
+        informer_id:
+          type: integer
+          format: int4
+          description: Уникальный идентификатор созданного информера
+      example:
+        message: "Информер успешно создан"
+        informer_id: 88
+    Location:
+      type: array
+      items:
+        type: object
+        properties:
+          parent:
+            type: string
+            description: Название родительского элемента
+          childs:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  description: Уникальный идентификатор дочернего элемента
+                name:
+                  type: string
+                  description: Название дочернего элемента
+                url:
+                  type: string
+                  format: uri
+                  description: URL дочернего элемента
+      example:
+        - parent: "Цены и скидки"
+          childs:
+            - id: 456
+              name: "Индекс цен"
+              url: "https://seller-portal-stage.wildberries.ru/prices-index"
