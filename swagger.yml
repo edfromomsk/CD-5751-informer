@@ -37,7 +37,7 @@ paths:
           description: Список всех информеров
           content:
             application/json:
-              $ref: '#/components/schemas/Informer'
+              $ref: '#/components/schemas/InformerList'
 
     post:
       summary: Создание информера
@@ -111,6 +111,19 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/InformerCreate'
+            example:
+              name: "уже не такой новый Информер"
+              location_id: 1
+              is_active: true
+              view: "web"
+              class: 1
+              display_order: 1
+              content:
+                - type: 1
+                  value: "Pater noster, qui es in caelis"
+                - type: 2
+                  value: sanctificetur nomen tuum
+              updated_by: 280
       responses:
         '200':
           description: Информер успешно обновлен
@@ -142,7 +155,7 @@ paths:
           description: Информер не найден
 components:
   schemas:
-    Informer:
+    InformerList:
       type: array
       items:
         type: object
@@ -298,7 +311,7 @@ components:
           type: 2
           value: "sanctificetur nomen Tuum"
     Created:
-      description: Информер успешно создан
+      description: Информер успешно создан/обновлен
       properties:
         message:
           type: string
