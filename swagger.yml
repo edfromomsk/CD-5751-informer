@@ -425,9 +425,21 @@ components:
                   type: string
                   format: uri
                   description: URL дочернего элемента
+                manual_max:
+                  type: int2
+                  description: Максимальное кол-во инструкций на странице
+                banner_max:
+                  type: int2
+                  description: Максимальное кол-во баннеров на странице
+                poll_max:
+                  type: int2
+                  description: Максимальное кол-во опросов на странице
       example:
         - parent: "Цены и скидки"
           childs:
             - id: 456
               name: "Индекс цен"
               url: "https://seller-portal-stage.wildberries.ru/prices-index"
+              manual_max: 3
+              banner_max: 5
+              poll_max: 7
