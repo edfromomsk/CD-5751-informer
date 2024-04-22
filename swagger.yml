@@ -150,10 +150,10 @@ components:
           - class
           - id
           - name
-          - updated_at
-          - created_by
-          - is_active
-          - display_order
+          - updatedAt
+          - createdBy
+          - isActive
+          - displayOrder
         properties:
           class:
             type: integer
@@ -166,18 +166,18 @@ components:
           name:
             type: string
             description: Название информера
-          updated_at:
+          updatedAt:
             type: string
             format: date-time
             description: Дата обновления информера
-          created_by:
+          createdBy:
             type: integer
             format: int64
             description: Идентификатор пользователя, создавшего информер
-          is_active:
+          isActive:
             type: boolean
             description: Флаг активности информера
-          display_order:
+          displayOrder:
             type: integer
             format: int64
             description: Порядок отображения информера
@@ -185,30 +185,30 @@ components:
         - class: 1
           id: 1
           name: "Новый Информер"
-          updated_at: "2024-04-17T12:27:52.000Z"
-          created_by: 124
-          is_active: true
-          display_order: 1
+          updatedAt: "2024-04-17T12:27:52.000Z"
+          createdBy: 124
+          isActive: true
+          displayOrder: 1
     InformerCreate:
       type: object
       required:
         - name
-        - location_id
-        - is_active
+        - locationId
+        - isActive
         - view
         - type
-        - display_order
+        - displayOrder
         - content
       properties:
         name:
           type: string
           maxLength: 255
           description: Название информера
-        location_id:
+        locationId:
           type: integer
           format: int64
           description: Уникальный идентификатор местоположения информера
-        is_active:
+        isActive:
           type: boolean
           description: Флаг активности информера
         view:
@@ -221,7 +221,7 @@ components:
           type: integer
           format: int64
           description: Вид информера, например, интрукция или банер
-        display_order:
+        displayOrder:
           type: integer
           format: int64
           description: Порядок отображения информера
@@ -242,15 +242,15 @@ components:
                 description: Значение, которое содержит выбранный тип контента
       example:
         name: "Новый Информер"
-        location_id: 1
-        is_active: true
+        locationId: 1
+        isActive: true
         view: "web"
         class: 1
-        display_order: 1
+        displayOrder: 1
         content:
           - type: 1
             value: "Pater noster, qui es in caelis"
-        created_by: 124
+        createdBy: 124
     InformerPatch:
       type: object
       properties:
@@ -258,11 +258,11 @@ components:
           type: string
           maxLength: 255
           description: Название информера
-        location_id:
+        locationId:
           type: integer
           format: int64
           description: Уникальный идентификатор местоположения информера
-        is_active:
+        isActive:
           type: boolean
           description: Флаг активности информера
         view:
@@ -275,7 +275,7 @@ components:
           type: integer
           format: int64
           description: Тип информера
-        display_order:
+        displayOrder:
           type: integer
           format: int64
           description: Порядок отображения информера
@@ -313,11 +313,11 @@ components:
             name:
               type: string
               description: Название информера
-            location_id:
+            locationId:
               type: integer
               format: int2
               description: Идентификатор связанного местоположения
-            is_active:
+            isActive:
               type: boolean
               description: Статус активности информера
             view:
@@ -328,22 +328,22 @@ components:
               type: integer
               format: int2
               description: Идентификатор класса информера, например 'Инструкция'
-            display_order:
+            displayOrder:
               type: integer
               format: int2
               description: Порядок отображения информера на странице портала поставщиков
-            layout_id:
+            layoutId:
               type: integer
               format: int4
               description: Идентификатор макета отображения
-            created_by:
+            createdBy:
               type: int8,
               description: ИД пользователя, создавшего информер
-            created_at:
+            createdAt:
               type: string
               format: date-time
               description: Время создания информера
-            updated_at:
+            updatedAt:
               type: string
               format: date-time
               description: Время последнего обновления информера
@@ -370,10 +370,10 @@ components:
                       value:
                         type: string
                         description: Значение, которое содержит выбранный тип контента
-                is_actual:
+                isActual:
                   type: boolean
                   description: Актуальность макета
-                created_at:
+                createdAt:
                   type: string
                   format: date-time
                   description: Время создания макета
@@ -382,15 +382,15 @@ components:
         informer:
           id: 88
           name: "Название информера"
-          location_id: 1
-          is_active: true
+          locationId: 1
+          isActive: true
           view: "web"
           class: 2
-          display_order: 3
-          layout_id: 4
-          created_by: 666
-          created_at: "2024-04-20T12:34:56Z"
-          updated_at: "2024-04-20T12:34:56Z"
+          displayOrder: 3
+          layoutId: 4
+          createdBy: 666
+          createdAt: "2024-04-20T12:34:56Z"
+          updatedAt: "2024-04-20T12:34:56Z"
           layout:
             id: 4
             content: [
@@ -399,8 +399,8 @@ components:
                value: "Pater noster, qui es in caelis" 
               }
             ]
-            is_actual: true
-            created_at: "2024-04-20T12:34:56Z"
+            isActual: true
+            createdAt: "2024-04-20T12:34:56Z"
 
     Location:
       type: array
@@ -425,13 +425,13 @@ components:
                   type: string
                   format: uri
                   description: URL дочернего элемента
-                manual_max:
+                manualMax:
                   type: int2
                   description: Максимальное кол-во инструкций на странице
-                banner_max:
+                bannerMax:
                   type: int2
                   description: Максимальное кол-во баннеров на странице
-                poll_max:
+                pollMax:
                   type: int2
                   description: Максимальное кол-во опросов на странице
       example:
@@ -440,6 +440,6 @@ components:
             - id: 456
               name: "Индекс цен"
               url: "https://seller-portal-stage.wildberries.ru/prices-index"
-              manual_max: 3
-              banner_max: 5
-              poll_max: 7
+              manualMax: 3
+              bannerMax: 5
+              pollMax: 7
