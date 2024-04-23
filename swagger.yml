@@ -161,6 +161,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DoesntExist'
+  /api/v1/informer/currentPage:
+    get:
+      summary: Получение актуальных информеров для раздела портала поставщиков
+      parameters:
+        - in: query
+          name: location
+          schema:
+            type: string
+            format: URL
+          required: true
+          description: Раздел портала, для которого запрашиваются информеры
+        
+      responses:
+        '200':
+          description: Список актуальных информеров для указанного раздела
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentInformerList'
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+  /api/v1/informers/rating:
+    post:
+      summary: Получение оценки информера
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InformerRatingInput'
+      responses:
+        '200':
+          description: Оценка информера успешно сохранена
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
 components:
   schemas:
     InformerList:
@@ -476,3 +519,25 @@ components:
           description: Информер не найден
       example:
         error: "Informer with id: {264353} doesn't exist"
+    CurrentInformerList:
+      type: array
+      items:
+        $ref: '#/components/schemas/FullInformer'
+    InformerRatingInput:
+      type: object
+      required:
+        - informerId
+        - rating
+        - userInfo
+      properties:
+        informerId:
+          type: integer
+          description: Уникальный идентификатор информера
+        feedback:
+          type: string
+          enum: [like, dislike]
+          description: Оценка информера (like или dislike)
+        supplier_id:
+          type: integer
+          description: ИД пользователя, оценившего информер
+        
