@@ -37,8 +37,8 @@ paths:
           description: Список всех информеров
           content:
             application/json:
-              $ref: '#/components/schemas/InformerList'
-
+              schema:
+                $ref: '#/components/schemas/InformerList'
     post:
       summary: Создание информера
       requestBody:
@@ -76,12 +76,13 @@ paths:
             type: integer
           required: true
           description: Уникальный идентификатор информера
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FullInformer'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullInformer'
     delete:
       summary: Удаление информера
       parameters:
@@ -96,6 +97,10 @@ paths:
           description: Информер успешно удален
         '404':
           description: Информер не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DoesntExist'
     put:
       summary: Обновление информера
       parameters:
@@ -114,10 +119,22 @@ paths:
       responses:
         '200':
           description: Информер успешно обновлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullInformer'
         '400':
           description: Неверный запрос, ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
         '404':
           description: Информер не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DoesntExist'
     patch:
       summary: Частичное обновление информера (overkill?)
       parameters:
@@ -140,6 +157,10 @@ paths:
           description: Неверный запрос, ошибка валидации
         '404':
           description: Информер не найден
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DoesntExist'
 components:
   schemas:
     InformerList:
@@ -147,7 +168,8 @@ components:
       items:
         type: object
         required:
-          - class
+          - locationId
+          - type
           - id
           - name
           - updatedAt
@@ -155,9 +177,13 @@ components:
           - isActive
           - displayOrder
         properties:
-          class:
+          locationId:
             type: integer
-            format: int64
+            format: int2
+            description: ИД расположения информера
+          type:
+            type: string
+            format: enum
             description: Тип информера
           id:
             type: integer
@@ -182,7 +208,8 @@ components:
             format: int64
             description: Порядок отображения информера
       example:
-        - class: 1
+        - locationId: 453
+          type: Manual
           id: 1
           name: "Новый Информер"
           updatedAt: "2024-04-17T12:27:52.000Z"
@@ -217,9 +244,9 @@ components:
             - web
             - mobile
           description: Вид информера
-        class:
-          type: integer
-          format: int64
+        type:
+          type: string
+          format: enum
           description: Вид информера, например, интрукция или банер
         displayOrder:
           type: integer
@@ -245,7 +272,7 @@ components:
         locationId: 1
         isActive: true
         view: "web"
-        class: 1
+        type: Manual
         displayOrder: 1
         content:
           - type: 1
@@ -299,109 +326,99 @@ components:
     FullInformer:
       description: Информер успешно создан/обновлен
       properties:
-        message:
+        id:
+          type: integer
+          format: int4
+          description: Уникальный идентификатор информера
+        name:
           type: string
-          description: Сообщение об успешном создании/обновлении информера
-        informer:
+          description: Название информера
+        locationId:
+          type: integer
+          format: int2
+          description: Идентификатор связанного местоположения
+        isActive:
+          type: boolean
+          description: Статус активности информера
+        view:
+          type: string
+          enum: [web, mobile]
+          description: Платформа отображения информера
+        type:
+          type: string
+          format: enum
+          description: Идентификатор класса информера, например 'Инструкция'
+        displayOrder:
+          type: integer
+          format: int2
+          description: Порядок отображения информера на странице портала поставщиков
+        layoutId:
+          type: integer
+          format: int4
+          description: Идентификатор макета отображения
+        createdBy:
+          format: integer,
+          description: ИД пользователя, создавшего информер
+        createdAt:
+          type: string
+          format: date-time
+          description: Время создания информера
+        updatedAt:
+          type: string
+          format: date-time
+          description: Время последнего обновления информера
+        layout:
           type: object
-          description: Полная информация о созданном информере
+          description: Информация о макете
           properties:
             id:
               type: integer
               format: int4
-              description: Уникальный идентификатор информера
-            name:
-              type: string
-              description: Название информера
-            locationId:
-              type: integer
-              format: int2
-              description: Идентификатор связанного местоположения
-            isActive:
+              description: Уникальный идентификатор макета
+            content:
+              type: array
+              items:
+                type: object
+                required:
+                  - type
+                  - value
+                properties:
+                  type:
+                    type: integer
+                    format: int64
+                    description: Тип контента, например, заголовок или буллетпойнт
+                  value:
+                    type: string
+                    description: Значение, которое содержит выбранный тип контента
+            isActual:
               type: boolean
-              description: Статус активности информера
-            view:
-              type: string
-              enum: [web, mobile]
-              description: Платформа отображения информера
-            class:
-              type: integer
-              format: int2
-              description: Идентификатор класса информера, например 'Инструкция'
-            displayOrder:
-              type: integer
-              format: int2
-              description: Порядок отображения информера на странице портала поставщиков
-            layoutId:
-              type: integer
-              format: int4
-              description: Идентификатор макета отображения
-            createdBy:
-              type: int8,
-              description: ИД пользователя, создавшего информер
+              description: Актуальность макета
             createdAt:
               type: string
               format: date-time
-              description: Время создания информера
-            updatedAt:
-              type: string
-              format: date-time
-              description: Время последнего обновления информера
-            layout:
-              type: object
-              description: Информация о макете
-              properties:
-                id:
-                  type: integer
-                  format: int4
-                  description: Уникальный идентификатор макета
-                content:
-                  type: array
-                  items:
-                    type: object
-                    required:
-                      - type
-                      - value
-                    properties:
-                      type:
-                        type: integer
-                        format: int64
-                        description: Тип контента, например, заголовок или буллетпойнт
-                      value:
-                        type: string
-                        description: Значение, которое содержит выбранный тип контента
-                isActual:
-                  type: boolean
-                  description: Актуальность макета
-                createdAt:
-                  type: string
-                  format: date-time
-                  description: Время создания макета
+              description: Время создания макета
       example:
-        message: "Информер успешно создан/обновлен"
-        informer:
-          id: 88
-          name: "Название информера"
-          locationId: 1
-          isActive: true
-          view: "web"
-          class: 2
-          displayOrder: 3
-          layoutId: 4
-          createdBy: 666
+        id: 88
+        name: "Название информера"
+        locationId: 1
+        isActive: true
+        view: "web"
+        type: Manual
+        displayOrder: 3
+        layoutId: 4
+        createdBy: 666
+        createdAt: "2024-04-20T12:34:56Z"
+        updatedAt: "2024-04-20T12:34:56Z"
+        layout:
+          id: 4
+          content: [
+            {
+              type: 1,
+              value: "Pater noster, qui es in caelis" 
+            }
+          ]
+          isActual: true
           createdAt: "2024-04-20T12:34:56Z"
-          updatedAt: "2024-04-20T12:34:56Z"
-          layout:
-            id: 4
-            content: [
-              {
-               type: 1,
-               value: "Pater noster, qui es in caelis" 
-              }
-            ]
-            isActual: true
-            createdAt: "2024-04-20T12:34:56Z"
-
     Location:
       type: array
       items:
@@ -426,13 +443,13 @@ components:
                   format: uri
                   description: URL дочернего элемента
                 manualMax:
-                  type: int2
+                  format: int2
                   description: Максимальное кол-во инструкций на странице
                 bannerMax:
-                  type: int2
+                  format: int2
                   description: Максимальное кол-во баннеров на странице
                 pollMax:
-                  type: int2
+                  format: int2
                   description: Максимальное кол-во опросов на странице
       example:
         - parent: "Цены и скидки"
@@ -443,3 +460,19 @@ components:
               manualMax: 3
               bannerMax: 5
               pollMax: 7
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Описание ошибки валидации
+      example:
+        error: "Ошибка валидации: поле 'name' не может быть пустым"
+    DoesntExist:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Информер не найден
+      example:
+        error: "Informer with id: {264353} doesn't exist"
