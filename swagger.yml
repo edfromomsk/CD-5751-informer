@@ -6,7 +6,7 @@ info:
 servers:
   - url: /
 paths:
-  /api/v1/location:
+  /api/v1/informer/locations:
     get:
       summary: Получение информации о всех возможных путях расположения информера из таблицы location
       responses:
@@ -186,7 +186,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ValidationError'
-  /api/v1/informers/rating:
+  /api/v1/informers/feedback:
     post:
       summary: Получение оценки информера
       requestBody:
@@ -211,9 +211,9 @@ components:
       items:
         type: object
         required:
+          - id
           - locationId
           - type
-          - id
           - name
           - updatedAt
           - createdBy
@@ -251,9 +251,9 @@ components:
             format: int64
             description: Порядок отображения информера
       example:
-        - locationId: 453
+        - id: 1
+          locationId: 453
           type: Manual
-          id: 1
           name: "Новый Информер"
           updatedAt: "2024-04-17T12:27:52.000Z"
           createdBy: 124
@@ -263,7 +263,7 @@ components:
       type: object
       required:
         - name
-        - locationId
+        
         - isActive
         - view
         - type
@@ -274,10 +274,7 @@ components:
           type: string
           maxLength: 255
           description: Название информера
-        locationId:
-          type: integer
-          format: int64
-          description: Уникальный идентификатор местоположения информера
+        
         isActive:
           type: boolean
           description: Флаг активности информера
@@ -320,7 +317,7 @@ components:
         content:
           - type: 1
             value: "Pater noster, qui es in caelis"
-        createdBy: 124
+        
     InformerPatch:
       type: object
       properties:
@@ -467,7 +464,10 @@ components:
       items:
         type: object
         properties:
-          parent:
+          parentId:
+            type: integer
+            description: ИД родителя
+          parentName:
             type: string
             description: Название родительского элемента
           childs:
@@ -495,11 +495,12 @@ components:
                   format: int2
                   description: Максимальное кол-во опросов на странице
       example:
-        - parent: "Цены и скидки"
+        - parentId: 345
+          parentName: "Цены и скидки"
           childs:
             - id: 456
               name: "Индекс цен"
-              url: "https://seller-portal-stage.wildberries.ru/prices-index"
+              url: "prices-index"
               manualMax: 3
               bannerMax: 5
               pollMax: 7
@@ -526,13 +527,14 @@ components:
     InformerRatingInput:
       type: object
       required:
-        - informerId
+        
+        - layoutId
         - rating
         - userInfo
       properties:
-        informerId:
+        
+        layoutId:
           type: integer
-          description: Уникальный идентификатор информера
         feedback:
           type: string
           enum: [like, dislike]
