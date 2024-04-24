@@ -8,7 +8,7 @@ servers:
 paths:
   /api/v1/informer/location:
     get:
-      summary: Получение информации о всех возможных путях расположения информера из справочника location
+      summary: Получение ссылок на все разделы Портала Поставщиков из справочника 'location'
       responses:
         '200':
           description: Успешный ответ
