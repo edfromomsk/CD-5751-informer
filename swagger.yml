@@ -32,7 +32,7 @@ paths:
                   properties:
                     columnName:
                       type: string
-                      description: Колонка, по которой производится сортировка
+                      description: Поле, по которому производится сортировка
                     order:
                       type: string
                       enum: [asc, desc]
@@ -43,7 +43,7 @@ paths:
                   properties:
                     locationId: 
                       type: integer
-                      description: ИД страницы из таблицы location
+                      description: ИД раздела портала поставщиков из справочника location
                 cursor:
                   type: object
                   description: Параметры для управления пагинацией
@@ -160,7 +160,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CurrentInformerList'
+                $ref: '#/components/schemas/ForCurrentPage'
         '400':
           description: Неверный запрос
           content:
@@ -244,7 +244,6 @@ components:
       required:
         - name
         - isActive
-        - view
         - type
         - displayOrder
       properties:
@@ -258,12 +257,6 @@ components:
         isActive:
           type: boolean
           description: Флаг активности информера
-        view:
-          type: string
-          enum:
-            - web
-            - mobile
-          description: Вид информера
         type:
           type: string
           description: Вид информера, например, инструкция или баннер
@@ -276,7 +269,6 @@ components:
         name: "Интересная инструкция"
         locationId: 1
         isActive: true
-        view: "web"
         type: Manual
         displayOrder: 1
     InformerPatch:
@@ -331,10 +323,6 @@ components:
         id:
           type: integer
           description: Уникальный ИД информера
-        view:
-          type: string
-          enum: [web, mobile]
-          description: Платформа отображения информера
         type:
           type: string
           description: Тип информера, например 'Инструкция'
@@ -522,6 +510,12 @@ components:
         hasFeedback:
           type: boolean
           description: Наличие обратной связи
+        view:
+          type: string
+          enum:
+            - web
+            - mobile
+          description: Вид информера
         content:
           type: array
           items:
@@ -537,7 +531,7 @@ components:
               value:
                 type: string
                 description: Значение контента
-    CurrentInformerList:
+    ForCurrentPage:
       type: array
       items:
         type: object
