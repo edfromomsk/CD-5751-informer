@@ -4,14 +4,14 @@ info:
   description: API для управления информерами в админке
   version: "1.0"
 servers:
-  - url: /
+  - url: "/"
 paths:
   /api/v1/informer/location:
     get:
       summary: Получение информации о всех возможных путях расположения информера из справочника location
       responses:
         '200':
-          description: Success Response
+          description: Успешный ответ
           content:
             application/json:
               schema:
@@ -19,47 +19,44 @@ paths:
   /api/v1/informer/list:
     post:
       summary: Получение списка всех информеров с пагинацией
-      parameters:
-        - in: body
-          description: Параметры для запроса списка информеров с пагинацией
-          schema:
-            type: object
-            properties:
-              sort:
-                type: object
-                description: Параметры для сортировки списка информеров
-                properties:
-                  columnName:
-                    type: string
-                    description: Колонка, по которой производится сортировка
-                  order:
-                    type: string
-                    enum: [asc, desc]
-                    description: Порядок сортировки (по возрастания или убыванию)
-              filter:
-                type: object
-                description: Страница портала поставщиков, по которой нужно отфильтровать информеры
-                properties:
-                  locationId: 
-                    type: integer
-                    description: ИД страницы из таблицы location
-              cursor:
-                type: object
-                description: Параметры для управления пагинацией
-                properties:
-                  next:
-                    type: boolean
-                    description: Флаг, указывающий на наличие следующей страницы
-                  n:
-                    type: integer
-                    description: Количество элементов на странице
-                  informerId:
-                    type: integer
-                    description: ИД информера, на котором завершилась текущая страница
-             
-            
-
-        
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sort:
+                  type: object
+                  description: Параметры для сортировки списка информеров
+                  properties:
+                    columnName:
+                      type: string
+                      description: Колонка, по которой производится сортировка
+                    order:
+                      type: string
+                      enum: [asc, desc]
+                      description: Порядок сортировки (по возрастанию или убыванию)
+                filter:
+                  type: object
+                  description: Фильтр для информеров
+                  properties:
+                    locationId: 
+                      type: integer
+                      description: ИД страницы из таблицы location
+                cursor:
+                  type: object
+                  description: Параметры для управления пагинацией
+                  properties:
+                    next:
+                      type: boolean
+                      description: Флаг, указывающий на наличие следующей страницы
+                    n:
+                      type: integer
+                      description: Количество элементов на странице
+                    informerId:
+                      type: integer
+                      description: ИД информера, на котором завершилась текущая страница
       responses:
         '200':
           description: Список всех информеров
@@ -67,6 +64,28 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InformerList'
+  /api/v1/informer/content:
+    post:
+      summary: Сохранение контента информера
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/InformerContent'
+      responses:
+        '201':
+          description: Контент информера создан/обновлен
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/InformerContent'
+        '400':
+          description: Неверный запрос, ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponce' 
   /api/v1/informer:
     post:
       summary: Создание/обновление информера. Зависит от того, передается ли в теле запроса ИД.
@@ -78,26 +97,20 @@ paths:
               $ref: '#/components/schemas/InformerCreate'
       responses:
         '201':
-          description: Информер успешно создан
+          description: Информер успешно создан/обновлен
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullInformer'
+                $ref: '#/components/schemas/PostInformer'
         '400':
           description: Неверный запрос, ошибка валидации
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-                    description: Описание ошибки валидации
-              example:
-                error: "Ошибка валидации: поле 'name' не может быть пустым"
+                 $ref: '#/components/schemas/ErrorResponce' 
   /api/v1/informer/{id}:
     get:
-      summary: Получение информера для редактирования
+      summary: Получение контента информера для редактирования
       parameters:
         - in: path
           name: id
@@ -107,11 +120,11 @@ paths:
           description: Уникальный идентификатор информера
       responses:
         '200':
-          description: Successful response
+          description: Успешный ответ
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FullInformer'
+                $ref: '#/components/schemas/InformerContent'
     delete:
       summary: Удаление информера
       parameters:
@@ -129,41 +142,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DoesntExist'
-    put:
-      summary: Обновление информера
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-          description: Уникальный идентификатор информера
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FullInformer'
-      responses:
-        '200':
-          description: Информер успешно обновлен
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FullInformer'
-        '400':
-          description: Неверный запрос, ошибка валидации
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-        '404':
-          description: Информер не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DoesntExist'
+                $ref: '#/components/schemas/ErrorResponce'
   /api/v1/informer/forCurrentPage:
     get:
       summary: Получение актуальных информеров для раздела портала поставщиков
@@ -172,10 +151,9 @@ paths:
           name: location
           schema:
             type: string
-            format: URL
+            format: uri
           required: true
           description: Раздел портала, для которого запрашиваются информеры
-        
       responses:
         '200':
           description: Список актуальных информеров для указанного раздела
@@ -188,7 +166,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationError'
+                $ref: '#/components/schemas/ErrorResponce'
   /api/v1/informer/feedback:
     post:
       summary: Добавление оценки на информер
@@ -206,7 +184,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationError'
+                $ref: '#/components/schemas/ErrorResponce'
 components:
   schemas:
     InformerList:
@@ -229,7 +207,6 @@ components:
             description: ИД расположения информера
           type:
             type: string
-            format: enum
             description: Тип информера
           id:
             type: integer
@@ -270,7 +247,6 @@ components:
         - view
         - type
         - displayOrder
-        - content
       properties:
         id:
           type: integer
@@ -279,7 +255,6 @@ components:
           type: string
           maxLength: 255
           description: Название информера
-        
         isActive:
           type: boolean
           description: Флаг активности информера
@@ -291,8 +266,7 @@ components:
           description: Вид информера
         type:
           type: string
-          format: enum
-          description: Вид информера, например, интрукция или банер
+          description: Вид информера, например, инструкция или баннер
         displayOrder:
           type: integer
           format: int64
@@ -305,7 +279,6 @@ components:
         view: "web"
         type: Manual
         displayOrder: 1
-        
     InformerPatch:
       type: object
       properties:
@@ -351,7 +324,22 @@ components:
         content:
           type: 2
           value: "sanctificetur nomen Tuum"
+    PostInformer:
+      type: object
+      description: Информер создан/обновлен
+      properties:
+        id:
+          type: integer
+          description: Уникальный ИД информера
+        view:
+          type: string
+          enum: [web, mobile]
+          description: Платформа отображения информера
+        type:
+          type: string
+          description: Тип информера, например 'Инструкция'
     FullInformerDeprecated:
+      type: object
       description: Информер успешно создан/обновлен
       properties:
         id:
@@ -374,7 +362,6 @@ components:
           description: Платформа отображения информера
         type:
           type: string
-          format: enum
           description: Идентификатор класса информера, например 'Инструкция'
         displayOrder:
           type: integer
@@ -385,7 +372,7 @@ components:
           format: int4
           description: Идентификатор макета отображения
         createdBy:
-          format: integer,
+          format: integer
           description: ИД пользователя, создавшего информер
         createdAt:
           type: string
@@ -474,14 +461,17 @@ components:
                   format: uri
                   description: URL дочернего элемента
                 manualMax:
+                  type: integer
                   format: int2
-                  description: Максимальное кол-во инструкций на странице
+                  description: Максимальное количество инструкций на странице
                 bannerMax:
+                  type: integer
                   format: int2
-                  description: Максимальное кол-во баннеров на странице
+                  description: Максимальное количество баннеров на странице
                 pollMax:
+                  type: integer
                   format: int2
-                  description: Максимальное кол-во опросов на странице
+                  description: Максимальное количество опросов на странице
       example:
         - parentId: 345
           parentName: "Цены и скидки"
@@ -492,37 +482,33 @@ components:
               manualMax: 3
               bannerMax: 5
               pollMax: 7
-    ValidationError:
+    ErrorResponce:
       type: object
       properties:
-        error:
+        data:
           type: string
-          description: Описание ошибки валидации
-      example:
-        error: "Ошибка валидации: поле 'name' не может быть пустым"
-    DoesntExist:
-      type: object
-      properties:
+          description: NULL в случае ошибки
         error:
+          type: boolean
+          description: Признак наличия ошибки
+        errorText:
           type: string
-          description: Информер не найден
-      example:
-        error: "Informer with id: {264353} doesn't exist"
-    CurrentInformerList:
-      type: array
-      items:
-        $ref: '#/components/schemas/FullInformer'
+          description: Текст ошибки
+        additionalErrors:
+          type: object
+          description: Дополнительные ошибки (если есть)
+
+
     InformerRatingInput:
       type: object
       required:
-        
         - layoutId
-        - rating
-        - userInfo
+        - feedback
+        - supplier_id
       properties:
-        
         layoutId:
           type: integer
+          description: ИД макета информера
         feedback:
           type: string
           enum: [like, dislike]
@@ -530,8 +516,13 @@ components:
         supplier_id:
           type: integer
           description: ИД пользователя, оценившего информер
-        
-content:
+    InformerContent:
+      type: object
+      properties:
+        hasFeedback:
+          type: boolean
+          description: Наличие обратной связи
+        content:
           type: array
           items:
             type: object
@@ -542,7 +533,33 @@ content:
               type:
                 type: integer
                 format: int64
-                description: Тип контента, например, заголовок или буллетпойнт
+                description: Тип контента
               value:
                 type: string
-                description: Значение, которое содержит выбранный тип контента
+                description: Значение контента
+    CurrentInformerList:
+      type: array
+      items:
+        type: object
+        required:
+          - type
+          - name
+          - isActive
+          - displayOrder
+          - informerContent
+        properties:
+          type:
+            type: string
+            description: Тип информера
+          name:
+            type: string
+            description: Название информера
+          isActive:
+            type: boolean
+            description: Флаг активности информера
+          displayOrder:
+            type: integer
+            format: int64
+            description: Порядок отображения информера
+          informerContent:
+            $ref: '#/components/schemas/InformerContent'
