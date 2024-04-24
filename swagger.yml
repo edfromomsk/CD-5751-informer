@@ -6,32 +6,60 @@ info:
 servers:
   - url: /
 paths:
-  /api/v1/informer/locations:
+  /api/v1/informer/location:
     get:
-      summary: Получение информации о всех возможных путях расположения информера из таблицы location
+      summary: Получение информации о всех возможных путях расположения информера из справочника location
       responses:
         '200':
-          description: Successful operation
+          description: Success Response
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Location'
-  /api/v1/informer:
-    get:
+  /api/v1/informer/list:
+    post:
       summary: Получение списка всех информеров с пагинацией
       parameters:
-        - in: query
-          name: offset
+        - in: body
+          description: Параметры для запроса списка информеров с пагинацией
           schema:
-            type: integer
-            minimum: 0
-          description: Смещение списка (начиная с какого элемента)
-        - in: query
-          name: limit
-          schema:
-            type: integer
-            minimum: 1
-          description: Максимальное количество элементов в списке
+            type: object
+            properties:
+              sort:
+                type: object
+                description: Параметры для сортировки списка информеров
+                properties:
+                  columnName:
+                    type: string
+                    description: Колонка, по которой производится сортировка
+                  order:
+                    type: string
+                    enum: [asc, desc]
+                    description: Порядок сортировки (по возрастания или убыванию)
+              filter:
+                type: object
+                description: Страница портала поставщиков, по которой нужно отфильтровать информеры
+                properties:
+                  locationId: 
+                    type: integer
+                    description: ИД страницы из таблицы location
+              cursor:
+                type: object
+                description: Параметры для управления пагинацией
+                properties:
+                  next:
+                    type: boolean
+                    description: Флаг, указывающий на наличие следующей страницы
+                  n:
+                    type: integer
+                    description: Количество элементов на странице
+                  informerId:
+                    type: integer
+                    description: ИД информера, на котором завершилась текущая страница
+             
+            
+
+        
       responses:
         '200':
           description: Список всех информеров
@@ -39,8 +67,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InformerList'
+  /api/v1/informer:
     post:
-      summary: Создание информера
+      summary: Создание/обновление информера. Зависит от того, передается ли в теле запроса ИД.
       requestBody:
         required: true
         content:
@@ -135,33 +164,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DoesntExist'
-    patch:
-      summary: Частичное обновление информера (overkill?)
-      parameters:
-        - in: path
-          name: id
-          schema:
-            type: integer
-          required: true
-          description: Уникальный идентификатор информера
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/InformerPatch'
-      responses:
-        '200':
-          description: Информер успешно обновлен
-        '400':
-          description: Неверный запрос, ошибка валидации
-        '404':
-          description: Информер не найден
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DoesntExist'
-  /api/v1/informer/currentPage:
+  /api/v1/informer/forCurrentPage:
     get:
       summary: Получение актуальных информеров для раздела портала поставщиков
       parameters:
@@ -186,9 +189,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ValidationError'
-  /api/v1/informers/feedback:
+  /api/v1/informer/feedback:
     post:
-      summary: Получение оценки информера
+      summary: Добавление оценки на информер
       requestBody:
         required: true
         content:
@@ -263,13 +266,15 @@ components:
       type: object
       required:
         - name
-        
         - isActive
         - view
         - type
         - displayOrder
         - content
       properties:
+        id:
+          type: integer
+          description: ИД информера
         name:
           type: string
           maxLength: 255
@@ -292,31 +297,14 @@ components:
           type: integer
           format: int64
           description: Порядок отображения информера
-        content:
-          type: array
-          items:
-            type: object
-            required:
-              - type
-              - value
-            properties:
-              type:
-                type: integer
-                format: int64
-                description: Тип контента, например, заголовок или буллетпойнт
-              value:
-                type: string
-                description: Значение, которое содержит выбранный тип контента
       example:
-        name: "Новый Информер"
+        id: 88
+        name: "Интересная инструкция"
         locationId: 1
         isActive: true
         view: "web"
         type: Manual
         displayOrder: 1
-        content:
-          - type: 1
-            value: "Pater noster, qui es in caelis"
         
     InformerPatch:
       type: object
@@ -363,7 +351,7 @@ components:
         content:
           type: 2
           value: "sanctificetur nomen Tuum"
-    FullInformer:
+    FullInformerDeprecated:
       description: Информер успешно создан/обновлен
       properties:
         id:
@@ -543,3 +531,18 @@ components:
           type: integer
           description: ИД пользователя, оценившего информер
         
+content:
+          type: array
+          items:
+            type: object
+            required:
+              - type
+              - value
+            properties:
+              type:
+                type: integer
+                format: int64
+                description: Тип контента, например, заголовок или буллетпойнт
+              value:
+                type: string
+                description: Значение, которое содержит выбранный тип контента
